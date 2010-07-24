@@ -684,6 +684,19 @@ void RecomputePrices()
 	SetWindowDirty(WC_PAYMENT_RATES, 0);
 }
 
+static void CompaniesPayLeasePayment()
+{
+  const Company *c;
+
+  Backup<CompanyByte> cur_company(_current_company, FILE_LINE);
+  FOR_ALL_COMPANIES(c) {
+    cur_company.Change(c->index);
+
+    Money lease_amount = c->current_lease * _economy.interest_rate + 10;
+  }
+  cur_company.Restore();
+}
+
 static void CompaniesPayInterest()
 {
 	const Company *c;

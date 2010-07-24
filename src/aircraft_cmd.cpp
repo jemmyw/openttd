@@ -242,7 +242,9 @@ CommandCost CmdBuildAircraft(TileIndex tile, DoCommandFlag flags, uint32 p1, uin
 
 	const Engine *e = Engine::Get(eid);
 	const AircraftVehicleInfo *avi = &e->u.air;
-	CommandCost value(EXPENSES_NEW_VEHICLES, e->GetCost());
+
+  Money zero = 0;
+	CommandCost value(EXPENSES_NEW_VEHICLES, (p2 & BUILD_LEASE) ? zero : e->GetCost());
 
 	/* Engines without valid cargo should not be available */
 	if (e->GetDefaultCargoType() == CT_INVALID) return CMD_ERROR;
@@ -305,7 +307,21 @@ CommandCost CmdBuildAircraft(TileIndex tile, DoCommandFlag flags, uint32 p1, uin
 
 		v->subtype = (avi->subtype & AIR_CTOL ? AIR_AIRCRAFT : AIR_HELICOPTER);
 		v->UpdateDeltaXY(INVALID_DIR);
-		v->value = value.GetCost();
+		// v->value = value.GetCost();
+    v->value = e->GetCost();
+
+    if (p2 & BUILD_LEASE) {
+      // Vehicle was leased
+      v->leased = 1;
+      v->leased_for = v->value;
+      v->lease_left = v->leased_for;
+      v->leased_until = _date + 365*3;
+
+      // Update company lease information
+      Company *lc = Company::Get(_current_company);
+      lc->current_lease += v->leased_for;
+      SetWindowDirty(WC_FINANCES, lc->index);
+    }
 
 		u->subtype = AIR_SHADOW;
 		u->UpdateDeltaXY(INVALID_DIR);
@@ -380,7 +396,6 @@ CommandCost CmdBuildAircraft(TileIndex tile, DoCommandFlag flags, uint32 p1, uin
 
 	return value;
 }
-
 
 /** Sell an aircraft.
  * @param tile unused

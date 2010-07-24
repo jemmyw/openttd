@@ -139,6 +139,7 @@ CommandCallback CcFoundTown;
 CommandCallback CcFoundRandomTown;
 
 /* vehicle_gui.cpp */
+CommandCallback CcLeasePrimaryVehicle;
 CommandCallback CcBuildPrimaryVehicle;
 CommandCallback CcStartStopVehicle;
 

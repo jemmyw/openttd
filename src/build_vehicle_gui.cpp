@@ -52,6 +52,8 @@ enum BuildVehicleWidgets {
 	BUILD_VEHICLE_WIDGET_PANEL,
 	BUILD_VEHICLE_WIDGET_BUILD,
 	BUILD_VEHICLE_WIDGET_BUILD_SEL,
+  BUILD_VEHICLE_WIDGET_LEASE,
+  BUILD_VEHICLE_WIDGET_LEASE_SEL,
 	BUILD_VEHICLE_WIDGET_RENAME,
 	BUILD_VEHICLE_WIDGET_END
 };
@@ -87,6 +89,9 @@ static const NWidgetPart _nested_build_vehicle_widgets[] = {
 		NWidget(NWID_SELECTION, INVALID_COLOUR, BUILD_VEHICLE_WIDGET_BUILD_SEL),
 			NWidget(WWT_PUSHTXTBTN, COLOUR_GREY, BUILD_VEHICLE_WIDGET_BUILD), SetResize(1, 0), SetFill(1, 0),
 		EndContainer(),
+    NWidget(NWID_SELECTION, INVALID_COLOUR, BUILD_VEHICLE_WIDGET_LEASE_SEL),
+      NWidget(WWT_PUSHTXTBTN, COLOUR_GREY, BUILD_VEHICLE_WIDGET_LEASE), SetResize(1, 0), SetFill(1, 0),
+    EndContainer(),
 		NWidget(WWT_PUSHTXTBTN, COLOUR_GREY, BUILD_VEHICLE_WIDGET_RENAME), SetResize(1, 0), SetFill(1, 0),
 		NWidget(WWT_RESIZEBOX, COLOUR_GREY),
 	EndContainer(),
@@ -807,7 +812,11 @@ struct BuildVehicleWindow : Window {
 
 		/* If we are just viewing the list of vehicles, we do not need the Build button.
 		 * So we just hide it, and enlarge the Rename buton by the now vacant place. */
-		if (this->listview_mode) this->GetWidget<NWidgetStacked>(BUILD_VEHICLE_WIDGET_BUILD_SEL)->SetDisplayedPlane(SZSP_NONE);
+		if (this->listview_mode)
+    {
+      this->GetWidget<NWidgetStacked>(BUILD_VEHICLE_WIDGET_BUILD_SEL)->SetDisplayedPlane(SZSP_NONE);
+      this->GetWidget<NWidgetStacked>(BUILD_VEHICLE_WIDGET_LEASE_SEL)->SetDisplayedPlane(SZSP_NONE);
+    }
 
 		NWidgetCore *widget = this->GetWidget<NWidgetCore>(BUILD_VEHICLE_WIDGET_LIST);
 		widget->tool_tip = STR_BUY_VEHICLE_TRAIN_LIST_TOOLTIP + type;
@@ -815,6 +824,10 @@ struct BuildVehicleWindow : Window {
 		widget = this->GetWidget<NWidgetCore>(BUILD_VEHICLE_WIDGET_BUILD);
 		widget->widget_data = STR_BUY_VEHICLE_TRAIN_BUY_VEHICLE_BUTTON + type;
 		widget->tool_tip    = STR_BUY_VEHICLE_TRAIN_BUY_VEHICLE_TOOLTIP + type;
+
+    widget = this->GetWidget<NWidgetCore>(BUILD_VEHICLE_WIDGET_LEASE);
+    widget->widget_data = STR_BUY_VEHICLE_TRAIN_LEASE_VEHICLE_BUTTON + type;
+    widget->tool_tip    = STR_BUY_VEHICLE_TRAIN_LEASE_VEHICLE_TOOLTIP + type;
 
 		widget = this->GetWidget<NWidgetCore>(BUILD_VEHICLE_WIDGET_RENAME);
 		widget->widget_data = STR_BUY_VEHICLE_TRAIN_RENAME_BUTTON + type;
@@ -1086,6 +1099,15 @@ struct BuildVehicleWindow : Window {
 				}
 				break;
 			}
+
+      case BUILD_VEHICLE_WIDGET_LEASE: {
+        EngineID sel_eng = this->sel_engine;
+        if (sel_eng != INVALID_ENGINE) {
+          CommandCallback *callback = CcBuildPrimaryVehicle;
+          DoCommandP(this->window_number, sel_eng, BUILD_LEASE, GetCmdBuildVeh(this->vehicle_type), callback);
+        }
+        break;
+      }
 
 			case BUILD_VEHICLE_WIDGET_RENAME: {
 				EngineID sel_eng = this->sel_engine;

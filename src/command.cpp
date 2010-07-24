@@ -266,7 +266,7 @@ static const Command _command_proc_table[] = {
 
 	DEF_CMD(CmdSellAircraft,                                   0), // CMD_SELL_AIRCRAFT
 
-	DEF_CMD(CmdBuildAircraft,                                  0), // CMD_BUILD_AIRCRAFT
+  DEF_CMD(CmdBuildAircraft,                                  0), // CMD_BUILD_AIRCRAFT
 	DEF_CMD(CmdSendAircraftToHangar,                           0), // CMD_SEND_AIRCRAFT_TO_HANGAR
 	DEF_CMD(CmdRefitAircraft,                                  0), // CMD_REFIT_AIRCRAFT
 

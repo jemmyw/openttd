@@ -213,7 +213,7 @@ enum Commands {
 	CMD_RENAME_DEPOT,                 ///< rename a depot
 
 	CMD_SELL_AIRCRAFT,                ///< sell an aircraft
-	CMD_BUILD_AIRCRAFT,               ///< build an aircraft
+  CMD_BUILD_AIRCRAFT,               ///< build an aircraft
 	CMD_SEND_AIRCRAFT_TO_HANGAR,      ///< send an aircraft to a hanger
 	CMD_REFIT_AIRCRAFT,               ///< refit the cargo space of an aircraft
 

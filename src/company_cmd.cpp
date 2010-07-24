@@ -196,7 +196,8 @@ static void SubtractMoneyFromAnyCompany(Company *c, CommandCost cost)
 	                  1 << EXPENSES_AIRCRAFT_RUN |
 	                  1 << EXPENSES_SHIP_RUN     |
 	                  1 << EXPENSES_PROPERTY     |
-	                  1 << EXPENSES_LOAN_INT, cost.GetExpensesType())) {
+	                  1 << EXPENSES_LOAN_INT     |
+                    1 << EXPENSES_LEASE_PAY, cost.GetExpensesType())) {
 		c->cur_economy.expenses -= cost.GetCost();
 	}
 
