@@ -133,6 +133,8 @@ enum CompanyFinancesWindowWidgets {
 	CFW_BALANCE_VALUE, ///< Bank balance value
 	CFW_LOAN_VALUE,    ///< Loan
 	CFW_LOAN_LINE,     ///< Line for summing bank balance and loan
+  CFW_LEASE_VALUE,   ///< Lease
+  CFW_LEASE_LINE,    ///< Line for lease
 	CFW_TOTAL_VALUE,   ///< Total
 	CFW_MAXLOAN_GAP,   ///< Gap above max loan widget
 	CFW_MAXLOAN_VALUE, ///< Max loan widget
@@ -248,12 +250,14 @@ static const NWidgetPart _nested_company_finances_widgets[] = {
 			NWidget(NWID_VERTICAL), // Vertical column with 'bank balance', 'loan'
 				NWidget(WWT_TEXT, COLOUR_GREY), SetDataTip(STR_FINANCES_BANK_BALANCE_TITLE, STR_NULL), SetFill(1, 0),
 				NWidget(WWT_TEXT, COLOUR_GREY), SetDataTip(STR_FINANCES_LOAN_TITLE, STR_NULL), SetFill(1, 0),
+        NWidget(WWT_TEXT, COLOUR_GREY), SetDataTip(STR_FINANCES_LEASE_TITLE, STR_NULL), SetFill(1, 0),
 				NWidget(NWID_SPACER), SetFill(0, 1),
 			EndContainer(),
 			NWidget(NWID_SPACER), SetFill(0, 0), SetMinimalSize(30, 0),
 			NWidget(NWID_VERTICAL), // Vertical column with bank balance amount, loan amount, and total.
 				NWidget(WWT_TEXT, COLOUR_GREY, CFW_BALANCE_VALUE), SetDataTip(STR_NULL, STR_NULL),
 				NWidget(WWT_TEXT, COLOUR_GREY, CFW_LOAN_VALUE), SetDataTip(STR_NULL, STR_NULL),
+        NWidget(WWT_TEXT, COLOUR_GREY, CFW_LEASE_VALUE), SetDataTip(STR_NULL, STR_NULL),
 				NWidget(WWT_EMPTY, COLOUR_GREY, CFW_LOAN_LINE), SetMinimalSize(0, 2), SetFill(1, 0),
 				NWidget(WWT_TEXT, COLOUR_GREY, CFW_TOTAL_VALUE), SetDataTip(STR_NULL, STR_NULL),
 			EndContainer(),
@@ -330,6 +334,7 @@ struct CompanyFinancesWindow : Window {
 				/* Fall through */
 			case CFW_BALANCE_VALUE:
 			case CFW_LOAN_VALUE:
+      case CFW_LEASE_VALUE:
 			case CFW_TOTAL_VALUE:
 				SetDParam(0, CompanyFinancesWindow::max_money);
 				size->width = max(GetStringBoundingBox(STR_FINANCES_NEGATIVE_INCOME).width, GetStringBoundingBox(STR_FINANCES_POSITIVE_INCOME).width) + padding.width;
@@ -373,6 +378,13 @@ struct CompanyFinancesWindow : Window {
 				DrawString(r.left, r.right, r.top, STR_FINANCES_TOTAL_CURRENCY, TC_FROMSTRING, SA_RIGHT);
 				break;
 			}
+
+      case CFW_LEASE_VALUE: {
+        const Company *c = Company::Get((CompanyID)this->window_number);
+        SetDParam(0, c->current_lease);
+        DrawString(r.left, r.right, r.top, STR_FINANCES_TOTAL_CURRENCY, TC_FROMSTRING, SA_RIGHT);
+        break;
+      }
 
 			case CFW_TOTAL_VALUE: {
 				const Company *c = Company::Get((CompanyID)this->window_number);

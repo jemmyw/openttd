@@ -48,6 +48,7 @@ struct CompanyProperties {
 	Money money;
 	byte money_fraction;
 	Money current_loan;
+  Money current_lease;
 
 	byte colour;
 
