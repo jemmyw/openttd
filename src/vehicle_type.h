@@ -65,9 +65,9 @@ enum DepotCommand {
 };
 
 enum BuildCommand {
-  BUILD_BUY           = (1 << 0), ///< Buy the vehicle
-  BUILD_LEASE         = (1 << 1), ///< Lease the vehicle
-  BUILD_COMMAND_MASK  = 0xF,
+	BUILD_BUY						= (1 << 0), ///< Buy the vehicle
+	BUILD_LEASE					= (1 << 1), ///< Lease the vehicle
+	BUILD_COMMAND_MASK	= 0xF,
 };
 
 static const uint MAX_LENGTH_VEHICLE_NAME_BYTES  =  31; ///< The maximum length of a vehicle name in bytes including '\0'
