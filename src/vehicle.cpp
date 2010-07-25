@@ -932,7 +932,6 @@ void LeaseVehicle(Vehicle *v)
   v->leased_for = monthly_lease * (12 * lease_term);
 
   v->current_lease = v->leased_for;
-  v->leased_until = _date + 365*lease_term;
   v->monthly_lease = monthly_lease;
 
   // Update company lease information

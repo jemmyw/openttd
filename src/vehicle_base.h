@@ -96,7 +96,6 @@ public:
   Money leased_for;
   Money current_lease;
   Money monthly_lease;
-  Date  leased_until;
 
 	CargoPayment *cargo_payment;   ///< The cargo payment we're currently in
 
