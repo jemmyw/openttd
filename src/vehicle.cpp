@@ -953,12 +953,16 @@ void VehicleLeasePayment(Vehicle *v)
 
   Company *lc = Company::Get((CompanyID)v->owner);
   Money monthly_lease = v->monthly_lease;
-  monthly_lease <<= 8;
-  CommandCost payment(EXPENSES_LEASE_PAY, monthly_lease);
+
+  if (monthly_lease > v->current_lease) {
+    monthly_lease = v->current_lease;
+  }
+
+  CommandCost payment(EXPENSES_LEASE_PAY, monthly_lease << 8);
   SubtractMoneyFromCompanyFract(lc->index, payment);
 
-  v->current_lease += -v->monthly_lease;
-  lc->current_lease += -v->monthly_lease;
+  v->current_lease += -monthly_lease;
+  lc->current_lease += -monthly_lease;
 
   if (v->current_lease == 0) {
     DEBUG(misc, 0, "Lease expired!");
