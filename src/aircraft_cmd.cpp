@@ -545,7 +545,7 @@ void Aircraft::OnNewDay()
 
 	if ((++this->day_counter & 7) == 0) DecreaseVehicleValue(this);
 
-  VehicleLeasePayment(this);
+	VehicleLeasePayment(this);
 	CheckOrders(this);
 
 	CheckVehicleBreakdown(this);

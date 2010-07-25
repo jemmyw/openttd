@@ -195,7 +195,7 @@ void RoadVehUpdateCache(RoadVehicle *v)
  * @param tile tile of depot where road vehicle is built
  * @param flags operation to perform
  * @param p1 bus/truck type being built (engine)
- * @param p2 unused
+ * @param p2 BUILD_NORMAL or BUILD_LEASE
  * @param text unused
  * @return the cost of this operation or an error
  */
@@ -208,7 +208,7 @@ CommandCost CmdBuildRoadVeh(TileIndex tile, DoCommandFlag flags, uint32 p1, uint
 	/* Engines without valid cargo should not be available */
 	if (e->GetDefaultCargoType() == CT_INVALID) return CMD_ERROR;
 
-  bool lease = (p2 & BUILD_LEASE);
+	bool lease = (p2 & BUILD_LEASE);
 
 	CommandCost cost(EXPENSES_NEW_VEHICLES, lease ? Money(0) : e->GetCost());
 	if (flags & DC_QUERY_COST) return cost;
@@ -256,9 +256,9 @@ CommandCost CmdBuildRoadVeh(TileIndex tile, DoCommandFlag flags, uint32 p1, uint
 		v->cargo_cap = rvi->capacity;
 		v->value = e->GetCost();
 
-    if (lease) {
-      LeaseVehicle(v);
-    }
+		if (lease) {
+			LeaseVehicle(v);
+		}
 
 		v->last_station_visited = INVALID_STATION;
 		v->max_speed = rvi->max_speed;
@@ -351,11 +351,11 @@ CommandCost CmdSellRoadVeh(TileIndex tile, DoCommandFlag flags, uint32 p1, uint3
 	}
 
   // If leased then deduct this months payment when returning
-  Money value = v->leased ? v->monthly_lease : -v->value;
+	Money value = v->leased ? v->monthly_lease : -v->value;
 	ret = CommandCost(EXPENSES_NEW_VEHICLES, value);
 
 	if (flags & DC_EXEC) {
-    ReturnLeasedVehicle(v);
+		ReturnLeasedVehicle(v);
 		delete v;
 	}
 

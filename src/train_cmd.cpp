@@ -593,9 +593,9 @@ static CommandCost CmdBuildRailWagon(EngineID engine, TileIndex tile, DoCommandF
 		v->cargo_cap = rvi->capacity;
 		v->value = e->GetCost();
 
-    if (lease) {
-      LeaseVehicle(v);
-    }
+		if (lease) {
+			LeaseVehicle(v);
+		}
 
 		v->railtype = rvi->railtype;
 
@@ -755,9 +755,9 @@ CommandCost CmdBuildRailVehicle(TileIndex tile, DoCommandFlag flags, uint32 p1, 
 		v->max_speed = rvi->max_speed;
 		v->value = e->GetCost();
 
-    if (lease) {
-      LeaseVehicle(v);
-    }
+		if (lease) {
+			LeaseVehicle(v);
+		}
 
 		v->last_station_visited = INVALID_STATION;
 
@@ -4036,7 +4036,7 @@ void Train::OnNewDay()
 {
 	if ((++this->day_counter & 7) == 0) DecreaseVehicleValue(this);
 
-  VehicleLeasePayment(this);
+	VehicleLeasePayment(this);
 
 	if (this->IsFrontEngine()) {
 		CheckVehicleBreakdown(this);

@@ -169,7 +169,7 @@ void Ship::OnNewDay()
 	if ((++this->day_counter & 7) == 0)
 		DecreaseVehicleValue(this);
 
-  VehicleLeasePayment(this);
+	VehicleLeasePayment(this);
 	CheckVehicleBreakdown(this);
 	AgeVehicle(this);
 	CheckIfShipNeedsService(this);
@@ -601,7 +601,7 @@ bool Ship::Tick()
  * @param tile tile of depot where ship is built
  * @param flags type of operation
  * @param p1 ship type being built (engine)
- * @param p2 unused
+ * @param p2 BUILD_NORMAL or BUILD_LEASE
  * @param text unused
  * @return the cost of this operation or an error
  */
@@ -613,7 +613,7 @@ CommandCost CmdBuildShip(TileIndex tile, DoCommandFlag flags, uint32 p1, uint32 
 	if (!IsEngineBuildable(eid, VEH_SHIP, _current_company)) return_cmd_error(STR_ERROR_SHIP_NOT_AVAILABLE);
 
 	const Engine *e = Engine::Get(eid);
-  bool lease = (p2 & BUILD_LEASE);
+	bool lease = (p2 & BUILD_LEASE);
 
 	CommandCost value(EXPENSES_NEW_VEHICLES, lease ? Money(0) : e->GetCost());
 
@@ -657,9 +657,9 @@ CommandCost CmdBuildShip(TileIndex tile, DoCommandFlag flags, uint32 p1, uint32 
 		v->cargo_cap = svi->capacity;
 		v->value = e->GetCost();
 
-    if (lease) {
-      LeaseVehicle(v);
-    }
+		if (lease) {
+			LeaseVehicle(v);
+		}
 
 		v->last_station_visited = INVALID_STATION;
 		v->max_speed = svi->max_speed;
@@ -728,7 +728,7 @@ CommandCost CmdSellShip(TileIndex tile, DoCommandFlag flags, uint32 p1, uint32 p
 	ret = CommandCost(EXPENSES_NEW_VEHICLES, value);
 
 	if (flags & DC_EXEC) {
-    ReturnLeasedVehicle(v);
+		ReturnLeasedVehicle(v);
 		delete v;
 	}
 
