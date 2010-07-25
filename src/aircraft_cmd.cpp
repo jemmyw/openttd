@@ -422,7 +422,7 @@ CommandCost CmdSellAircraft(TileIndex tile, DoCommandFlag flags, uint32 p1, uint
 
   // If leased then deduct this months payment when returning
   if(v->leased) {
-    value = v->lease_monthly;
+    value = v->monthly_lease;
   } else {
     value = -v->value;
   }
