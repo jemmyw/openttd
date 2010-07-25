@@ -312,14 +312,15 @@ CommandCost CmdBuildAircraft(TileIndex tile, DoCommandFlag flags, uint32 p1, uin
 
     if (p2 & BUILD_LEASE) {
       // Vehicle was leased
-      v->leased = 1;
-      v->leased_for = v->value;
-      v->lease_left = v->leased_for;
+      v->leased = true;
+      v->current_lease = v->leased_for = v->value;
       v->leased_until = _date + 365*3;
+      v->monthly_lease = v->leased_for / (365*3);
 
       // Update company lease information
       Company *lc = Company::Get(_current_company);
       lc->current_lease += v->leased_for;
+      lc->monthly_lease += v->monthly_lease;
       SetWindowDirty(WC_FINANCES, lc->index);
     }
 
@@ -415,11 +416,27 @@ CommandCost CmdSellAircraft(TileIndex tile, DoCommandFlag flags, uint32 p1, uint
 
 	if (!v->IsStoppedInDepot()) return_cmd_error(STR_ERROR_AIRCRAFT_MUST_BE_STOPPED);
 
-	if (v->vehstatus & VS_CRASHED) return_cmd_error(STR_ERROR_VEHICLE_IS_DESTROYED);
+	if (v->vehstatus & VS_CRASHED) return_cmd_error(STR_ERROR_VEHICLE_IS_DESTROYED); 
 
-	ret = CommandCost(EXPENSES_NEW_VEHICLES, -v->value);
+  Money value;
+
+  // If leased then deduct this months payment when returning
+  if(v->leased) {
+    value = v->lease_monthly;
+  } else {
+    value = -v->value;
+  }
+
+	ret = CommandCost(EXPENSES_NEW_VEHICLES, value);
 
 	if (flags & DC_EXEC) {
+    if(v->leased) {
+      Company *lc = Company::Get(_current_company);
+      lc->current_lease += -v->current_lease;
+      lc->monthly_lease += -v->monthly_lease;
+      SetWindowDirty(WC_FINANCES, lc->index);
+    }
+
 		delete v;
 	}
 

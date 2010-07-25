@@ -92,9 +92,10 @@ public:
 	Money profit_last_year;        ///< Profit last year << 8, low 8 bits are fract
 	Money value;                   ///< Value of the vehicle
   
-  byte leased;
+  bool leased;
   Money leased_for;
-  Money lease_left;
+  Money current_lease;
+  Money monthly_lease;
   Date  leased_until;
 
 	CargoPayment *cargo_payment;   ///< The cargo payment we're currently in

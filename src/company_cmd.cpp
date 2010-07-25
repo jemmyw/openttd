@@ -487,7 +487,7 @@ Company *DoStartupNewCompany(bool is_ai, CompanyID company = INVALID_COMPANY)
 	_company_colours[c->index] = (Colours)c->colour;
 
 	c->money = c->current_loan = 100000;
-  c->current_lease = 0;
+  c->current_lease = c->monthly_lease = 0;
 
 	c->share_owners[0] = c->share_owners[1] = c->share_owners[2] = c->share_owners[3] = INVALID_OWNER;
 

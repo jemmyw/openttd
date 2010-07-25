@@ -136,7 +136,8 @@ enum CompanyFinancesWindowWidgets {
 	CFW_LOAN_VALUE,    ///< Loan
 	CFW_LOAN_LINE,     ///< Line for summing bank balance and loan
   CFW_LEASE_VALUE,   ///< Lease
-  CFW_LEASE_LINE,    ///< Line for lease
+  CFW_LEASE_MONTHLY, ///< Monthly lease payments to make
+  CFW_LEASE_LINE,    ///< Line for lease and monthly lease payments
 	CFW_TOTAL_VALUE,   ///< Total
 	CFW_MAXLOAN_GAP,   ///< Gap above max loan widget
 	CFW_MAXLOAN_VALUE, ///< Max loan widget
@@ -269,6 +270,7 @@ static const NWidgetPart _nested_company_finances_widgets[] = {
 					NWidget(NWID_VERTICAL), // Max loan information
 						NWidget(WWT_EMPTY, COLOUR_GREY, CFW_MAXLOAN_GAP), SetFill(0, 0),
 						NWidget(WWT_TEXT, COLOUR_GREY, CFW_MAXLOAN_VALUE), SetDataTip(STR_FINANCES_MAX_LOAN, STR_NULL),
+            NWidget(WWT_TEXT, COLOUR_GREY, CFW_LEASE_MONTHLY), SetDataTip(STR_FINANCES_LEASE_MONTHLY, STR_NULL),
 						NWidget(NWID_SPACER), SetFill(0, 1),
 					EndContainer(),
 				EndContainer(),
@@ -384,6 +386,13 @@ struct CompanyFinancesWindow : Window {
       case CFW_LEASE_VALUE: {
         const Company *c = Company::Get((CompanyID)this->window_number);
         SetDParam(0, c->current_lease);
+        DrawString(r.left, r.right, r.top, STR_FINANCES_TOTAL_CURRENCY, TC_FROMSTRING, SA_RIGHT);
+        break;
+      }
+
+      case CFW_LEASE_MONTHLY: {
+        const Company *c = Company::Get((CompanyID)this->window_number);
+        SetDParam(0, c->monthly_lease);
         DrawString(r.left, r.right, r.top, STR_FINANCES_TOTAL_CURRENCY, TC_FROMSTRING, SA_RIGHT);
         break;
       }
