@@ -242,7 +242,7 @@ CommandCost CmdBuildAircraft(TileIndex tile, DoCommandFlag flags, uint32 p1, uin
 
 	const Engine *e = Engine::Get(eid);
 	const AircraftVehicleInfo *avi = &e->u.air;
-  bool lease = (p2 & BUILD_LEASE);
+	bool lease = (p2 & BUILD_LEASE);
 
 	CommandCost value(EXPENSES_NEW_VEHICLES, lease ? Money(0) : e->GetCost());
 
@@ -308,11 +308,11 @@ CommandCost CmdBuildAircraft(TileIndex tile, DoCommandFlag flags, uint32 p1, uin
 		v->subtype = (avi->subtype & AIR_CTOL ? AIR_AIRCRAFT : AIR_HELICOPTER);
 		v->UpdateDeltaXY(INVALID_DIR);
 		// v->value = value.GetCost();
-    v->value = e->GetCost();
+		v->value = e->GetCost();
 
-    if (lease) {
-      LeaseVehicle(v);
-    }
+		if (lease) {
+			LeaseVehicle(v);
+		}
 
 		u->subtype = AIR_SHADOW;
 		u->UpdateDeltaXY(INVALID_DIR);
