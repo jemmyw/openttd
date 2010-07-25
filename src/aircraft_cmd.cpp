@@ -311,17 +311,7 @@ CommandCost CmdBuildAircraft(TileIndex tile, DoCommandFlag flags, uint32 p1, uin
     v->value = e->GetCost();
 
     if (p2 & BUILD_LEASE) {
-      // Vehicle was leased
-      v->leased = true;
-      v->current_lease = v->leased_for = v->value;
-      v->leased_until = _date + 365*3;
-      v->monthly_lease = v->leased_for / (365*3);
-
-      // Update company lease information
-      Company *lc = Company::Get(_current_company);
-      lc->current_lease += v->leased_for;
-      lc->monthly_lease += v->monthly_lease;
-      SetWindowDirty(WC_FINANCES, lc->index);
+      LeaseVehicle(v);
     }
 
 		u->subtype = AIR_SHADOW;
@@ -430,13 +420,7 @@ CommandCost CmdSellAircraft(TileIndex tile, DoCommandFlag flags, uint32 p1, uint
 	ret = CommandCost(EXPENSES_NEW_VEHICLES, value);
 
 	if (flags & DC_EXEC) {
-    if(v->leased) {
-      Company *lc = Company::Get(_current_company);
-      lc->current_lease += -v->current_lease;
-      lc->monthly_lease += -v->monthly_lease;
-      SetWindowDirty(WC_FINANCES, lc->index);
-    }
-
+    ReturnLeasedVehicle(v);
 		delete v;
 	}
 
@@ -573,6 +557,7 @@ void Aircraft::OnNewDay()
 	CheckVehicleBreakdown(this);
 	AgeVehicle(this);
 	CheckIfAircraftNeedsService(this);
+  VehicleLeasePayment(this);
 
 	if (this->running_ticks == 0) return;
 

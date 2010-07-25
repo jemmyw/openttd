@@ -315,6 +315,12 @@ struct CompanyFinancesWindow : Window {
 				SetDParam(0, _economy.max_loan);
 				break;
 
+      case CFW_LEASE_MONTHLY: {
+        const Company *c = Company::Get((CompanyID)this->window_number);
+        SetDParam(0, c->monthly_lease);
+        break;
+      }
+
 			case CFW_INCREASE_LOAN:
 			case CFW_REPAY_LOAN:
 				SetDParam(0, LOAN_INTERVAL);
@@ -386,13 +392,6 @@ struct CompanyFinancesWindow : Window {
       case CFW_LEASE_VALUE: {
         const Company *c = Company::Get((CompanyID)this->window_number);
         SetDParam(0, c->current_lease);
-        DrawString(r.left, r.right, r.top, STR_FINANCES_TOTAL_CURRENCY, TC_FROMSTRING, SA_RIGHT);
-        break;
-      }
-
-      case CFW_LEASE_MONTHLY: {
-        const Company *c = Company::Get((CompanyID)this->window_number);
-        SetDParam(0, c->monthly_lease);
         DrawString(r.left, r.right, r.top, STR_FINANCES_TOTAL_CURRENCY, TC_FROMSTRING, SA_RIGHT);
         break;
       }

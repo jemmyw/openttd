@@ -916,6 +916,58 @@ Vehicle *CheckClickOnVehicle(const ViewPort *vp, int x, int y)
 	return found;
 }
 
+void LeaseVehicle(Vehicle *v)
+{
+  v->leased = true;
+  v->current_lease = v->leased_for = v->value;
+  v->leased_until = _date + 365*3;
+  v->monthly_lease = v->leased_for / (12*3);
+
+  // Update company lease information
+  Company *lc = Company::Get(_current_company);
+  lc->current_lease += v->leased_for;
+  lc->monthly_lease += v->monthly_lease;
+  SetWindowDirty(WC_FINANCES, lc->index);
+}
+
+void ReturnLeasedVehicle(Vehicle *v)
+{
+  if(v->leased) {
+    Company *lc = Company::Get(_current_company);
+    lc->current_lease += -v->current_lease;
+    lc->monthly_lease += -v->monthly_lease;
+    SetWindowDirty(WC_FINANCES, lc->index);
+  }
+}
+
+void VehicleLeasePayment(Vehicle *v)
+{
+  if (!v->leased) return;
+
+  YearMonthDay ymd;
+  ConvertDateToYMD(_date, &ymd);
+
+  if (ymd.day != 1) return;
+
+  DEBUG(misc, 0, "Lease payment on day %d: %Ld", ymd.day, (int64)v->monthly_lease);
+
+  Company *lc = Company::Get((CompanyID)v->owner);
+  Money monthly_lease = v->monthly_lease;
+  monthly_lease <<= 8;
+  CommandCost payment(EXPENSES_LEASE_PAY, monthly_lease);
+  SubtractMoneyFromCompanyFract(lc->index, payment);
+
+  v->current_lease += -v->monthly_lease;
+  lc->current_lease += -v->monthly_lease;
+
+  if (v->current_lease == 0) {
+    DEBUG(misc, 0, "Lease expired!");
+    v->leased = false;
+  }
+
+  SetWindowDirty(WC_FINANCES, lc->index);
+}
+
 void DecreaseVehicleValue(Vehicle *v)
 {
 	v->value -= v->value >> 8;
