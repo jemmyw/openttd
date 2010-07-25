@@ -1103,7 +1103,7 @@ struct BuildVehicleWindow : Window {
       case BUILD_VEHICLE_WIDGET_LEASE: {
         EngineID sel_eng = this->sel_engine;
         if (sel_eng != INVALID_ENGINE) {
-          CommandCallback *callback = CcBuildPrimaryVehicle;
+          CommandCallback *callback = (this->vehicle_type == VEH_TRAIN && RailVehInfo(sel_eng)->railveh_type == RAILVEH_WAGON) ? CcBuildWagon : CcBuildPrimaryVehicle;
           DoCommandP(this->window_number, sel_eng, BUILD_LEASE, GetCmdBuildVeh(this->vehicle_type), callback);
         }
         break;
