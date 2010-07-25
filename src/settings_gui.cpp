@@ -1468,8 +1468,8 @@ static SettingEntry _settings_vehicles[] = {
 	SettingEntry("vehicle.dynamic_engines"),
 	SettingEntry("vehicle.roadveh_acceleration_model"),
 	SettingEntry("vehicle.roadveh_slope_steepness"),
-  SettingEntry("vehicle.lease_term"),
-  SettingEntry("vehicle.lease_interest"),
+	SettingEntry("vehicle.lease_term"),
+	SettingEntry("vehicle.lease_interest"),
 };
 /** Vehicles sub-page */
 static SettingsPage _settings_vehicles_page = {_settings_vehicles, lengthof(_settings_vehicles)};
