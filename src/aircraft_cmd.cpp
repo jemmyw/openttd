@@ -242,9 +242,9 @@ CommandCost CmdBuildAircraft(TileIndex tile, DoCommandFlag flags, uint32 p1, uin
 
 	const Engine *e = Engine::Get(eid);
 	const AircraftVehicleInfo *avi = &e->u.air;
+  bool lease = (p2 & BUILD_LEASE);
 
-  Money zero = 0;
-	CommandCost value(EXPENSES_NEW_VEHICLES, (p2 & BUILD_LEASE) ? zero : e->GetCost());
+	CommandCost value(EXPENSES_NEW_VEHICLES, lease ? Money(0) : e->GetCost());
 
 	/* Engines without valid cargo should not be available */
 	if (e->GetDefaultCargoType() == CT_INVALID) return CMD_ERROR;
@@ -310,7 +310,7 @@ CommandCost CmdBuildAircraft(TileIndex tile, DoCommandFlag flags, uint32 p1, uin
 		// v->value = value.GetCost();
     v->value = e->GetCost();
 
-    if (p2 & BUILD_LEASE) {
+    if (lease) {
       LeaseVehicle(v);
     }
 
@@ -411,12 +411,7 @@ CommandCost CmdSellAircraft(TileIndex tile, DoCommandFlag flags, uint32 p1, uint
   Money value;
 
   // If leased then deduct this months payment when returning
-  if(v->leased) {
-    value = v->monthly_lease;
-  } else {
-    value = -v->value;
-  }
-
+  value = v->leased ? v->monthly_lease : -v->value;
 	ret = CommandCost(EXPENSES_NEW_VEHICLES, value);
 
 	if (flags & DC_EXEC) {

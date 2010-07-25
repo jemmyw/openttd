@@ -540,11 +540,12 @@ void DrawTrainEngine(int left, int right, int preferred_x, int y, EngineID engin
 	}
 }
 
-static CommandCost CmdBuildRailWagon(EngineID engine, TileIndex tile, DoCommandFlag flags)
+static CommandCost CmdBuildRailWagon(EngineID engine, TileIndex tile, DoCommandFlag flags, bool lease)
 {
 	const Engine *e = Engine::Get(engine);
 	const RailVehicleInfo *rvi = &e->u.rail;
-	CommandCost value(EXPENSES_NEW_VEHICLES, e->GetCost());
+
+	CommandCost value(EXPENSES_NEW_VEHICLES, lease ? Money(0) : e->GetCost());
 
 	/* Engines without valid cargo should not be available */
 	if (e->GetDefaultCargoType() == CT_INVALID) return CMD_ERROR;
@@ -590,7 +591,11 @@ static CommandCost CmdBuildRailWagon(EngineID engine, TileIndex tile, DoCommandF
 
 		v->cargo_type = e->GetDefaultCargoType();
 		v->cargo_cap = rvi->capacity;
-		v->value = value.GetCost();
+		v->value = e->GetCost();
+
+    if (lease) {
+      LeaseVehicle(v);
+    }
 
 		v->railtype = rvi->railtype;
 
@@ -695,7 +700,9 @@ CommandCost CmdBuildRailVehicle(TileIndex tile, DoCommandFlag flags, uint32 p1, 
 
 	const Engine *e = Engine::Get(eid);
 	const RailVehicleInfo *rvi = &e->u.rail;
-	CommandCost value(EXPENSES_NEW_VEHICLES, e->GetCost());
+  bool lease = (p2 & BUILD_LEASE);
+
+	CommandCost value(EXPENSES_NEW_VEHICLES, lease ? Money(0) : e->GetCost());
 
 	/* Engines with CT_INVALID should not be available */
 	if (e->GetDefaultCargoType() == CT_INVALID) return CMD_ERROR;
@@ -707,7 +714,7 @@ CommandCost CmdBuildRailVehicle(TileIndex tile, DoCommandFlag flags, uint32 p1, 
 	if (!IsRailDepotTile(tile)) return CMD_ERROR;
 	if (!IsTileOwner(tile, _current_company)) return CMD_ERROR;
 
-	if (rvi->railveh_type == RAILVEH_WAGON) return CmdBuildRailWagon(eid, tile, flags);
+	if (rvi->railveh_type == RAILVEH_WAGON) return CmdBuildRailWagon(eid, tile, flags, lease);
 
 	uint num_vehicles =
 		(rvi->railveh_type == RAILVEH_MULTIHEAD ? 2 : 1) +
@@ -746,7 +753,12 @@ CommandCost CmdBuildRailVehicle(TileIndex tile, DoCommandFlag flags, uint32 p1, 
 		v->cargo_type = e->GetDefaultCargoType();
 		v->cargo_cap = rvi->capacity;
 		v->max_speed = rvi->max_speed;
-		v->value = value.GetCost();
+		v->value = e->GetCost();
+
+    if (lease) {
+      LeaseVehicle(v);
+    }
+
 		v->last_station_visited = INVALID_STATION;
 
 		v->engine_type = eid;
@@ -1391,7 +1403,10 @@ CommandCost CmdSellRailWagon(TileIndex tile, DoCommandFlag flags, uint32 p1, uin
 	}
 
 	CommandCost cost(EXPENSES_NEW_VEHICLES);
-	for (Train *t = sell_head; t != NULL; t = t->Next()) cost.AddCost(-t->value);
+  for (Train *t = sell_head; t != NULL; t = t->Next()) {
+    Money value = t->leased ? t->monthly_lease : -t->value;
+    cost.AddCost(value);
+  }
 
 	/* do it? */
 	if (flags & DC_EXEC) {
@@ -1419,6 +1434,11 @@ CommandCost CmdSellRailWagon(TileIndex tile, DoCommandFlag flags, uint32 p1, uin
 		/* We are undoubtedly changing something in the depot and train list. */
 		InvalidateWindowData(WC_VEHICLE_DEPOT, v->tile);
 		InvalidateWindowClassesData(WC_TRAINS_LIST, 0);
+  
+    /* Return each leased vehicle. */
+    for (Train *t = sell_head; t != NULL; t = t->Next()) {
+      ReturnLeasedVehicle(t);
+    }
 
 		/* Actually delete the sold 'goods' */
 		delete sell_head;
@@ -3490,6 +3510,8 @@ static void DeleteLastWagon(Train *v)
 	TileIndex tile = v->tile;
 	Owner owner = v->owner;
 
+  // Return the Vehicle if leased
+  ReturnLeasedVehicle(v);
 	delete v;
 	v = NULL; // make sure nobody will try to read 'v' anymore
 
@@ -4013,6 +4035,8 @@ static void CheckIfTrainNeedsService(Train *v)
 void Train::OnNewDay()
 {
 	if ((++this->day_counter & 7) == 0) DecreaseVehicleValue(this);
+
+  VehicleLeasePayment(this);
 
 	if (this->IsFrontEngine()) {
 		CheckVehicleBreakdown(this);

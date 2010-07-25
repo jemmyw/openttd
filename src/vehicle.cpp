@@ -922,11 +922,13 @@ void LeaseVehicle(Vehicle *v)
   Money monthly_lease = 12 * lease_term;
 
   if (v->value > 12*lease_term) {
-    Money monthly_lease = ((int64)v->value / (12*lease_term)) * 1.2;
+    monthly_lease = ((double)v->value*1.2) / (12*lease_term);
   }
 
   v->leased = true;
-  v->current_lease = v->leased_for = monthly_lease * (12*lease_term);
+  v->leased_for = monthly_lease * (12 * lease_term);
+
+  v->current_lease = v->leased_for;
   v->leased_until = _date + 365*lease_term;
   v->monthly_lease = monthly_lease;
 
