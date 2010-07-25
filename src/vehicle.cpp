@@ -918,10 +918,13 @@ Vehicle *CheckClickOnVehicle(const ViewPort *vp, int x, int y)
 
 void LeaseVehicle(Vehicle *v)
 {
+  Year lease_term = 3;
+  Money monthly_lease = (v->value / (12*lease_term)) * 1.2;
+
   v->leased = true;
-  v->current_lease = v->leased_for = v->value;
-  v->leased_until = _date + 365*3;
-  v->monthly_lease = v->leased_for / (12*3);
+  v->current_lease = v->leased_for = monthly_lease * (12*lease_term);
+  v->leased_until = _date + 365*lease_term;
+  v->monthly_lease = monthly_lease;
 
   // Update company lease information
   Company *lc = Company::Get(_current_company);
@@ -967,6 +970,7 @@ void VehicleLeasePayment(Vehicle *v)
   if (v->current_lease == 0) {
     DEBUG(misc, 0, "Lease expired!");
     v->leased = false;
+    lc->monthly_lease += -v->monthly_lease;
   }
 
   SetWindowDirty(WC_FINANCES, lc->index);
