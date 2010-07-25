@@ -329,6 +329,8 @@ struct VehicleSettings {
 	byte   extend_vehicle_life;              ///< extend vehicle life by this many years
 	byte   road_side;                        ///< the side of the road vehicles drive on
 	uint8  plane_crashes;                    ///< number of plane crashes, 0 = none, 1 = reduced, 2 = normal
+  uint8  lease_term;                       ///< years that vehicles are leased for
+  uint8  lease_interest;
 };
 
 /** Settings related to the economy. */

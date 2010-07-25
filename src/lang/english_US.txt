@@ -1220,6 +1220,9 @@ STR_CONFIG_SETTING_MAX_ROAD_VEHICLES                            :{LTBLUE}Max roa
 STR_CONFIG_SETTING_MAX_AIRCRAFT                                 :{LTBLUE}Max aircraft per player: {ORANGE}{STRING}
 STR_CONFIG_SETTING_MAX_SHIPS                                    :{LTBLUE}Max ships per player: {ORANGE}{STRING}
 
+STR_CONFIG_SETTING_LEASE_TERM                                   :{LTBLUE}Length of vehicle lease in years: {ORANGE}{STRING1}
+STR_CONFIG_SETTING_LEASE_INTEREST                               :{LTBLUE}Lease interest rate: {ORANGE}{STRING1}%
+
 STR_CONFIG_SETTING_AI_BUILDS_TRAINS                             :{LTBLUE}Disable trains for computer: {ORANGE}{STRING}
 STR_CONFIG_SETTING_AI_BUILDS_ROAD_VEHICLES                      :{LTBLUE}Disable road vehicles for computer: {ORANGE}{STRING}
 STR_CONFIG_SETTING_AI_BUILDS_AIRCRAFT                           :{LTBLUE}Disable aircraft for computer: {ORANGE}{STRING}

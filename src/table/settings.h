@@ -398,6 +398,8 @@ const SettingDesc _settings[] = {
 	     SDT_VAR(GameSettings, vehicle.max_roadveh,                 SLE_UINT16,                     0, 0,   500,     0,    5000, 0, STR_CONFIG_SETTING_MAX_ROAD_VEHICLES,      RedrawScreen),
 	     SDT_VAR(GameSettings, vehicle.max_aircraft,                SLE_UINT16,                     0, 0,   200,     0,    5000, 0, STR_CONFIG_SETTING_MAX_AIRCRAFT,           RedrawScreen),
 	     SDT_VAR(GameSettings, vehicle.max_ships,                   SLE_UINT16,                     0, 0,   300,     0,    5000, 0, STR_CONFIG_SETTING_MAX_SHIPS,              RedrawScreen),
+       SDT_VAR(GameSettings, vehicle.lease_term,                  SLE_UINT8,                      0, 0,   3,       1,      50, 0, STR_CONFIG_SETTING_LEASE_TERM,             NULL),
+       SDT_VAR(GameSettings, vehicle.lease_interest,              SLE_UINT8,                      0, 0,   20,      5,     200, 0, STR_CONFIG_SETTING_LEASE_INTEREST,         NULL),
 	SDTG_CONDBOOL(NULL,             0, NN, _old_vds.servint_ispercent, false,            STR_NULL, NULL, 0, 119),
 	SDTG_CONDVAR(NULL,  SLE_UINT16, 0, D0, _old_vds.servint_trains,      150, 5, 800, 0, STR_NULL, NULL, 0, 119),
 	SDTG_CONDVAR(NULL,  SLE_UINT16, 0, D0, _old_vds.servint_roadveh,     150, 5, 800, 0, STR_NULL, NULL, 0, 119),

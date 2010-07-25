@@ -918,11 +918,14 @@ Vehicle *CheckClickOnVehicle(const ViewPort *vp, int x, int y)
 
 void LeaseVehicle(Vehicle *v)
 {
-  Date lease_term = 3;
+  Date lease_term = _settings_game.vehicle.lease_term;
+  if (lease_term == 0) lease_term = 3;
+
   Money monthly_lease = 12 * lease_term;
 
   if (v->value > 12*lease_term) {
-    monthly_lease = ((double)v->value*1.2) / (12*lease_term);
+    double rate = ((double)(_settings_game.vehicle.lease_interest + 100)) / 100;
+    monthly_lease = ((double)v->value*rate) / (12*lease_term);
   }
 
   v->leased = true;
