@@ -1403,10 +1403,10 @@ CommandCost CmdSellRailWagon(TileIndex tile, DoCommandFlag flags, uint32 p1, uin
 	}
 
 	CommandCost cost(EXPENSES_NEW_VEHICLES);
-  for (Train *t = sell_head; t != NULL; t = t->Next()) {
-    Money value = t->leased ? t->monthly_lease : -t->value;
-    cost.AddCost(value);
-  }
+	for (Train *t = sell_head; t != NULL; t = t->Next()) {
+		Money value = t->leased ? t->monthly_lease : -t->value;
+		cost.AddCost(value);
+	}
 
 	/* do it? */
 	if (flags & DC_EXEC) {
@@ -1434,11 +1434,11 @@ CommandCost CmdSellRailWagon(TileIndex tile, DoCommandFlag flags, uint32 p1, uin
 		/* We are undoubtedly changing something in the depot and train list. */
 		InvalidateWindowData(WC_VEHICLE_DEPOT, v->tile);
 		InvalidateWindowClassesData(WC_TRAINS_LIST, 0);
-  
-    /* Return each leased vehicle. */
-    for (Train *t = sell_head; t != NULL; t = t->Next()) {
-      ReturnLeasedVehicle(t);
-    }
+	
+		/* Return each leased vehicle. */
+		for (Train *t = sell_head; t != NULL; t = t->Next()) {
+			ReturnLeasedVehicle(t);
+		}
 
 		/* Actually delete the sold 'goods' */
 		delete sell_head;
