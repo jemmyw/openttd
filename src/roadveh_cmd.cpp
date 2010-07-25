@@ -208,7 +208,9 @@ CommandCost CmdBuildRoadVeh(TileIndex tile, DoCommandFlag flags, uint32 p1, uint
 	/* Engines without valid cargo should not be available */
 	if (e->GetDefaultCargoType() == CT_INVALID) return CMD_ERROR;
 
-	CommandCost cost(EXPENSES_NEW_VEHICLES, e->GetCost());
+  bool lease = (p2 & BUILD_LEASE);
+
+	CommandCost cost(EXPENSES_NEW_VEHICLES, lease ? Money(0) : e->GetCost());
 	if (flags & DC_QUERY_COST) return cost;
 
 	/* The ai_new queries the vehicle cost before building the route,
@@ -252,7 +254,11 @@ CommandCost CmdBuildRoadVeh(TileIndex tile, DoCommandFlag flags, uint32 p1, uint
 		v->spritenum = rvi->image_index;
 		v->cargo_type = e->GetDefaultCargoType();
 		v->cargo_cap = rvi->capacity;
-		v->value = cost.GetCost();
+		v->value = e->GetCost();
+
+    if (lease) {
+      LeaseVehicle(v);
+    }
 
 		v->last_station_visited = INVALID_STATION;
 		v->max_speed = rvi->max_speed;
@@ -344,9 +350,12 @@ CommandCost CmdSellRoadVeh(TileIndex tile, DoCommandFlag flags, uint32 p1, uint3
 		return_cmd_error(STR_ERROR_ROAD_VEHICLE_MUST_BE_STOPPED_INSIDE_DEPOT);
 	}
 
-	ret = CommandCost(EXPENSES_NEW_VEHICLES, -v->value);
+  // If leased then deduct this months payment when returning
+  Money value = v->leased ? v->monthly_lease : -v->value;
+	ret = CommandCost(EXPENSES_NEW_VEHICLES, value);
 
 	if (flags & DC_EXEC) {
+    ReturnLeasedVehicle(v);
 		delete v;
 	}
 
@@ -498,7 +507,7 @@ static void DeleteLastRoadVeh(RoadVehicle *v)
 
 	/* Only leave the road stop when we're really gone. */
 	if (IsInsideMM(v->state, RVSB_IN_ROAD_STOP, RVSB_IN_ROAD_STOP_END)) RoadStop::GetByTile(v->tile, GetRoadStopType(v->tile))->Leave(v);
-
+  ReturnLeasedVehicle(v);
 	delete v;
 }
 
@@ -1703,6 +1712,8 @@ static void CheckIfRoadVehNeedsService(RoadVehicle *v)
 
 void RoadVehicle::OnNewDay()
 {
+  VehicleLeasePayment(this);
+
 	if (!this->IsRoadVehFront()) return;
 
 	if ((++this->day_counter & 7) == 0) DecreaseVehicleValue(this);
