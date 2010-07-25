@@ -169,6 +169,7 @@ void Ship::OnNewDay()
 	if ((++this->day_counter & 7) == 0)
 		DecreaseVehicleValue(this);
 
+  VehicleLeasePayment(this);
 	CheckVehicleBreakdown(this);
 	AgeVehicle(this);
 	CheckIfShipNeedsService(this);
@@ -612,7 +613,9 @@ CommandCost CmdBuildShip(TileIndex tile, DoCommandFlag flags, uint32 p1, uint32 
 	if (!IsEngineBuildable(eid, VEH_SHIP, _current_company)) return_cmd_error(STR_ERROR_SHIP_NOT_AVAILABLE);
 
 	const Engine *e = Engine::Get(eid);
-	CommandCost value(EXPENSES_NEW_VEHICLES, e->GetCost());
+  bool lease = (p2 & BUILD_LEASE);
+
+	CommandCost value(EXPENSES_NEW_VEHICLES, lease ? Money(0) : e->GetCost());
 
 	/* Engines without valid cargo should not be available */
 	if (e->GetDefaultCargoType() == CT_INVALID) return CMD_ERROR;
@@ -652,7 +655,11 @@ CommandCost CmdBuildShip(TileIndex tile, DoCommandFlag flags, uint32 p1, uint32 
 		v->spritenum = svi->image_index;
 		v->cargo_type = e->GetDefaultCargoType();
 		v->cargo_cap = svi->capacity;
-		v->value = value.GetCost();
+		v->value = e->GetCost();
+
+    if (lease) {
+      LeaseVehicle(v);
+    }
 
 		v->last_station_visited = INVALID_STATION;
 		v->max_speed = svi->max_speed;
@@ -716,9 +723,12 @@ CommandCost CmdSellShip(TileIndex tile, DoCommandFlag flags, uint32 p1, uint32 p
 		return_cmd_error(STR_ERROR_SHIP_MUST_BE_STOPPED_IN_DEPOT);
 	}
 
-	ret = CommandCost(EXPENSES_NEW_VEHICLES, -v->value);
+  // If leased then deduct this months payment when returning
+  Money value = v->leased ? v->monthly_lease : -v->value;
+	ret = CommandCost(EXPENSES_NEW_VEHICLES, value);
 
 	if (flags & DC_EXEC) {
+    ReturnLeasedVehicle(v);
 		delete v;
 	}
 

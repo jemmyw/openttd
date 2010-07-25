@@ -408,10 +408,8 @@ CommandCost CmdSellAircraft(TileIndex tile, DoCommandFlag flags, uint32 p1, uint
 
 	if (v->vehstatus & VS_CRASHED) return_cmd_error(STR_ERROR_VEHICLE_IS_DESTROYED); 
 
-  Money value;
-
   // If leased then deduct this months payment when returning
-  value = v->leased ? v->monthly_lease : -v->value;
+  Money value = v->leased ? v->monthly_lease : -v->value;
 	ret = CommandCost(EXPENSES_NEW_VEHICLES, value);
 
 	if (flags & DC_EXEC) {
@@ -547,12 +545,12 @@ void Aircraft::OnNewDay()
 
 	if ((++this->day_counter & 7) == 0) DecreaseVehicleValue(this);
 
+  VehicleLeasePayment(this);
 	CheckOrders(this);
 
 	CheckVehicleBreakdown(this);
 	AgeVehicle(this);
 	CheckIfAircraftNeedsService(this);
-  VehicleLeasePayment(this);
 
 	if (this->running_ticks == 0) return;
 
