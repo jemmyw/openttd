@@ -918,8 +918,12 @@ Vehicle *CheckClickOnVehicle(const ViewPort *vp, int x, int y)
 
 void LeaseVehicle(Vehicle *v)
 {
-  Year lease_term = 3;
-  Money monthly_lease = (v->value / (12*lease_term)) * 1.2;
+  Date lease_term = 3;
+  Money monthly_lease = 12 * lease_term;
+
+  if (v->value > 12*lease_term) {
+    Money monthly_lease = ((int64)v->value / (12*lease_term)) * 1.2;
+  }
 
   v->leased = true;
   v->current_lease = v->leased_for = monthly_lease * (12*lease_term);

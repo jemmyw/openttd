@@ -231,7 +231,7 @@ void GetAircraftSpriteSize(EngineID engine, uint &width, uint &height)
  * @param tile tile of depot where aircraft is built
  * @param flags for command
  * @param p1 aircraft type being built (engine)
- * @param p2 unused
+ * @param p2 BUILD_NORMAL or BUILD_LEASE
  * @param text unused
  * @return the cost of this operation or an error
  */
@@ -1147,6 +1147,8 @@ static bool HandleCrashedAircraft(Aircraft *v)
 			CLRBITS(st->airport.flags, RUNWAY_IN2_block);    // intercontinental
 		}
 
+    // Return the vehicle if leased
+    ReturnLeasedVehicle(v);
 		delete v;
 
 		return false;
