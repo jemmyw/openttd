@@ -49,9 +49,13 @@ void ViewportAddVehicles(DrawPixelInfo *dpi);
 void ShowNewGrfVehicleError(EngineID engine, StringID part1, StringID part2, GRFBugs bug_type, bool critical);
 CommandCost TunnelBridgeIsFree(TileIndex tile, TileIndex endtile, const Vehicle *ignore = NULL);
 
+// Leasing functions
+bool IsVehicleLeased(Vehicle *v);
+Money GetMonthlyLease(Vehicle *v);
 void ReturnLeasedVehicle(Vehicle *v);
 void LeaseVehicle(Vehicle *v);
 void VehicleLeasePayment(Vehicle *v);
+
 void DecreaseVehicleValue(Vehicle *v);
 void CheckVehicleBreakdown(Vehicle *v);
 void AgeVehicle(Vehicle *v);

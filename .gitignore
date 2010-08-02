@@ -45,3 +45,4 @@ src/os/windows/ottdres.rc
 !*.in
 *.tmp
 *.swp
+tags

@@ -351,7 +351,7 @@ CommandCost CmdSellRoadVeh(TileIndex tile, DoCommandFlag flags, uint32 p1, uint3
 	}
 
   // If leased then deduct this months payment when returning
-	Money value = v->leased ? v->monthly_lease : -v->value;
+  Money value = IsVehicleLeased(v) ? GetMonthlyLease(v) : -v->value;
 	ret = CommandCost(EXPENSES_NEW_VEHICLES, value);
 
 	if (flags & DC_EXEC) {

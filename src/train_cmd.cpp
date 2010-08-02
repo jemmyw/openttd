@@ -1404,7 +1404,7 @@ CommandCost CmdSellRailWagon(TileIndex tile, DoCommandFlag flags, uint32 p1, uin
 
 	CommandCost cost(EXPENSES_NEW_VEHICLES);
 	for (Train *t = sell_head; t != NULL; t = t->Next()) {
-		Money value = t->leased ? t->monthly_lease : -t->value;
+		Money value = IsVehicleLeased(t) ? GetMonthlyLease(t) : -t->value;
 		cost.AddCost(value);
 	}
 

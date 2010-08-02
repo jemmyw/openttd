@@ -22,6 +22,7 @@ void TileLoopClearHelper(TileIndex tile);
 
 /* company_cmd.cpp */
 bool CheckCompanyHasMoney(CommandCost &cost);
+void SubtractMoneyFromAnyCompany(Company *c, CommandCost cost);
 void SubtractMoneyFromCompany(CommandCost cost);
 void SubtractMoneyFromCompanyFract(CompanyID company, CommandCost cost);
 CommandCost CheckOwnership(Owner owner, TileIndex tile = 0);

@@ -916,69 +916,87 @@ Vehicle *CheckClickOnVehicle(const ViewPort *vp, int x, int y)
 	return found;
 }
 
+bool IsVehicleLeased(Vehicle *v)
+{
+	return HasBit(v->vehicle_flags, VF_LEASED);
+}
+
+uint32 GetMonthsSincePurchase(Vehicle *v)
+{
+	YearMonthDay ymd;
+	ConvertDateToYMD(_date - v->age, &ymd);
+	return ((_cur_year - ymd.year) * 12) + (_cur_month - ymd.month);
+}
+
+uint32 GetLeaseTerm()
+{
+	return _settings_game.vehicle.lease_term == 0 ? 3 : _settings_game.vehicle.lease_term;
+}
+
+bool LeaseExpired(Vehicle *v)
+{
+	return GetMonthsSincePurchase(v) > GetLeaseTerm()*12;
+}
+
+Money GetLeaseValue(Vehicle *v)
+{
+	Engine *e = Engine::Get(v->engine_type);
+	double rate = ((double)(_settings_game.vehicle.lease_interest + 100))/100;
+	return Money((double)e->GetCost()*rate);	
+}
+
+Money GetMonthlyLease(Vehicle *v)
+{
+	return Money((double)GetLeaseValue(v)/(12*GetLeaseTerm()));
+}
+
+Money LeaseRemaining(Vehicle *v)
+{
+	return GetLeaseValue(v) - (GetMonthsSincePurchase(v) * GetMonthlyLease(v));
+}
+
 void LeaseVehicle(Vehicle *v)
 {
-	Date lease_term = _settings_game.vehicle.lease_term;
-	if (lease_term == 0) lease_term = 3;
-
-	Money monthly_lease = 12 * lease_term;
-
-	if (v->value > 12*lease_term) {
-		double rate = ((double)(_settings_game.vehicle.lease_interest + 100)) / 100;
-		monthly_lease = ((double)v->value*rate) / (12*lease_term);
-	}
-
-	v->leased = true;
-	v->leased_for = monthly_lease * (12 * lease_term);
-
-	v->current_lease = v->leased_for;
-	v->monthly_lease = monthly_lease;
+	SetBit(v->vehicle_flags, VF_LEASED);
 
 	// Update company lease information
 	Company *lc = Company::Get(_current_company);
-	lc->current_lease += v->leased_for;
-	lc->monthly_lease += v->monthly_lease;
+	lc->current_lease += GetLeaseValue(v);
+	lc->monthly_lease += GetMonthlyLease(v);
 	SetWindowDirty(WC_FINANCES, lc->index);
 }
 
 void ReturnLeasedVehicle(Vehicle *v)
 {
-	if(v->leased) {
+	if (IsVehicleLeased(v)) {
 		Company *lc = Company::Get(_current_company);
-		lc->current_lease += -v->current_lease;
-		lc->monthly_lease += -v->monthly_lease;
+		lc->current_lease += -LeaseRemaining(v);
+		lc->monthly_lease += -GetMonthlyLease(v);
 		SetWindowDirty(WC_FINANCES, lc->index);
 	}
 }
 
 void VehicleLeasePayment(Vehicle *v)
 {
-	if (!v->leased) return;
+	if (!IsVehicleLeased(v)) return;
 
 	YearMonthDay ymd;
 	ConvertDateToYMD(_date, &ymd);
 
 	if (ymd.day != 1) return;
 
-	DEBUG(misc, 0, "Lease payment on day %d: %Ld", ymd.day, (int64)v->monthly_lease);
-
 	Company *lc = Company::Get((CompanyID)v->owner);
-	Money monthly_lease = v->monthly_lease;
+	CommandCost payment = CommandCost(EXPENSES_LEASE_PAY, GetMonthlyLease(v));
 
-	if (monthly_lease > v->current_lease) {
-		monthly_lease = v->current_lease;
-	}
+	DEBUG(misc, 0, "Lease payment (co) %Ld", (int64)payment.GetCost());
 
-	CommandCost payment(EXPENSES_LEASE_PAY, monthly_lease << 8);
-	SubtractMoneyFromCompanyFract(lc->index, payment);
+	SubtractMoneyFromAnyCompany(lc, payment);
 
-	v->current_lease += -monthly_lease;
-	lc->current_lease += -monthly_lease;
+	lc->current_lease += -payment.GetCost();
 
-	if (v->current_lease == 0) {
+	if (LeaseExpired(v)) {
 		DEBUG(misc, 0, "Lease expired!");
-		v->leased = false;
-		lc->monthly_lease += -v->monthly_lease;
+    ClrBit(v->vehicle_flags, VF_LEASED);
 	}
 
 	SetWindowDirty(WC_FINANCES, lc->index);

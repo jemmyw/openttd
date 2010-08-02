@@ -270,7 +270,7 @@ Money Engine::GetCost() const
 
 		default: NOT_REACHED();
 	}
-
+	
 	return GetPrice(base_price, cost_factor, this->grffile, -8);
 }
 

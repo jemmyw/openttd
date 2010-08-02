@@ -310,10 +310,6 @@ CommandCost CmdBuildAircraft(TileIndex tile, DoCommandFlag flags, uint32 p1, uin
 		// v->value = value.GetCost();
 		v->value = e->GetCost();
 
-		if (lease) {
-			LeaseVehicle(v);
-		}
-
 		u->subtype = AIR_SHADOW;
 		u->UpdateDeltaXY(INVALID_DIR);
 
@@ -342,6 +338,8 @@ CommandCost CmdBuildAircraft(TileIndex tile, DoCommandFlag flags, uint32 p1, uin
 
 		v->vehicle_flags = 0;
 		if (e->flags & ENGINE_EXCLUSIVE_PREVIEW) SetBit(v->vehicle_flags, VF_BUILT_AS_PROTOTYPE);
+
+		if (lease) LeaseVehicle(v);
 
 		v->InvalidateNewGRFCacheOfChain();
 
@@ -409,7 +407,7 @@ CommandCost CmdSellAircraft(TileIndex tile, DoCommandFlag flags, uint32 p1, uint
 	if (v->vehstatus & VS_CRASHED) return_cmd_error(STR_ERROR_VEHICLE_IS_DESTROYED); 
 
   // If leased then deduct this months payment when returning
-  Money value = v->leased ? v->monthly_lease : -v->value;
+  Money value = IsVehicleLeased(v) ? GetMonthlyLease(v) : -v->value;
 	ret = CommandCost(EXPENSES_NEW_VEHICLES, value);
 
 	if (flags & DC_EXEC) {

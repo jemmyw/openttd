@@ -178,7 +178,7 @@ bool CheckCompanyHasMoney(CommandCost &cost)
 	return true;
 }
 
-static void SubtractMoneyFromAnyCompany(Company *c, CommandCost cost)
+void SubtractMoneyFromAnyCompany(Company *c, CommandCost cost)
 {
 	if (cost.GetCost() == 0) return;
 	assert(cost.GetExpensesType() != INVALID_EXPENSES);
